@@ -21,7 +21,7 @@
   lineinfile:
     backup: yes
     dest: /etc/postfix/main.cf
-    regexp: "^{{ item.variable }}\s*=\s*"
+    regexp: "^{{ item.variable }}\\s*=\\s*"
     line: "{{ item.variable }} = {{ item.value }}"
     state: present
   with_items:
@@ -61,10 +61,3 @@
   with_items:
     - /etc/postfix/sasl_passwd.db
     - /etc/postfix/sasl_passwd
-
-# - name: Set canonical mappings for sender addresses
-#   template:
-#     src: etc/postfix/sender_canonical.j2
-#     dest: /etc/postfix/sender_canonical
-#     backup: yes
-#   notify: Reload Postfix
