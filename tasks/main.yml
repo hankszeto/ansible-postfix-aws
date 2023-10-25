@@ -21,7 +21,7 @@
   lineinfile:
     backup: yes
     dest: /etc/postfix/main.cf
-    regexp: "^{{ item.variable }}\ ="
+    regexp: "^{{ item.variable }}\s*=\s*"
     line: "{{ item.variable }} = {{ item.value }}"
     state: present
   with_items:
