@@ -7,6 +7,14 @@
     that:
       - postfix_aws_ses_username is defined
       - postfix_aws_ses_password is defined
+      - postfix_aws_default_from_email is defined
+
+- name: Sanity check of postfix_aws_sender_canonical_maps variable
+  assert:
+    that:
+      - "'pattern' in item"
+      - "'address' in item"
+  with_items: "{{ postfix_aws_sender_canonical_maps }}"
 
 - name: Install Postfix
   package: name=postfix state=present
@@ -33,6 +41,7 @@
     - { variable: 'smtp_tls_security_level', value: 'encrypt' }
     - { variable: 'smtp_tls_note_starttls_offer', value: 'yes' }
     - { variable: 'smtp_tls_CAfile', value: '{{ postfix_aws_tls_cafile_path }}' }
+    - { variable: 'sender_canonical_maps', value: 'regexp:/etc/postfix/sender_canonical' }
   notify: Restart Postfix
 
 - name: Create file with SMTP credentials
@@ -61,3 +70,10 @@
   with_items:
     - /etc/postfix/sasl_passwd.db
     - /etc/postfix/sasl_passwd
+
+- name: Set canonical mappings for sender addresses
+  template:
+    src: etc/postfix/sender_canonical.j2
+    dest: /etc/postfix/sender_canonical
+    backup: yes
+  notify: Reload Postfix
