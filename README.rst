@@ -4,10 +4,24 @@ ansible-postfix-aws
 Ansible role to install Postfix and configure it to send emails through Amazon
 SES service.
 
-This role follows official `Amazone documentation for SES`_ with some
+This role follows official `Amazon documentation for SES`_ with some
 modifications to ensure idempotency.
 
-.. _Amazone documentation for SES: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/postfix.html
+.. _Amazon documentation for SES: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/postfix.html
+
+The default From email address needs to match the AWS SES verified email domain
+otherwise AWS SES will an error: "554 Message rejected: Email address is not
+verified."
+
+`sender_canonical_classes` is set to `envelope_sender` so that the
+sender_canonical_maps only affects the envelope sender address. This means that
+the header sender addresses (e.g. Reply-To and From) are not also hardcoded to the
+default From email address.
+
+The From header address still needs to be set to the default From email address,
+and this is set using smtp_header_checks.
+
+See https://stackoverflow.com/a/68819424/5565611 for more information.
 
 Requirements
 ------------
