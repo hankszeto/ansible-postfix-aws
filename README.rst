@@ -9,6 +9,20 @@ modifications to ensure idempotency.
 
 .. _Amazon documentation for SES: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/postfix.html
 
+The default From email address needs to match the AWS SES verified email domain
+otherwise AWS SES will an error: "554 Message rejected: Email address is not
+verified."
+
+`sender_canonical_classes` is set to `envelope_sender` so that the
+sender_canonical_maps only affects the envelope sender address. This means that
+the header sender addresses (e.g. Reply-To and From) are not also hardcoded to the
+default From email address.
+
+The From header address still needs to be set to the default From email address,
+and this is set using smtp_header_checks.
+
+See https://stackoverflow.com/a/68819424/5565611 for more information.
+
 Requirements
 ------------
 
@@ -63,7 +77,31 @@ Role Variables
 | ``postfix_aws_ses_password``          |  string  | Password for SMTP authentication with     |    yes    |                                                                         |
 |                                       |          | Amazon SES server.                        |           |                                                                         |
 +---------------------------------------+----------+-------------------------------------------+-----------+-------------------------------------------------------------------------+
+| ``postfix_aws_default_from_email``    |  string  | Default From email address.               |    yes    |                                                                         |
++---------------------------------------+----------+-------------------------------------------+-----------+-------------------------------------------------------------------------+
+| ``postfix_aws_sender_canonical_maps`` |  list    | List of canonical mappings for envelope   |     no    | .. code-block:: yaml                                                    |
+|                                       |          | and header sender addresses of the form:  |           |                                                                         |
+|                                       |          |                                           |           |     pattern: "/.+/"                                                     |
+|                                       |          | .. code-block:: yaml                      |           |     address: "{{ postfix_aws_default_from_email }}"                     |
+|                                       |          |                                           |           |     comment: Map all sender addresses to the default From email address |
+|                                       |          |     pattern: string                       |           |                                                                         |
+|                                       |          |     address: string                       |           |                                                                         |
+|                                       |          |     comment: string                       |           |                                                                         |
+|                                       |          |                                           |           |                                                                         |
+|                                       |          | where ``pattern`` represents a regular    |           |                                                                         |
+|                                       |          | expression that matches the original      |           |                                                                         |
+|                                       |          | sender address and ``address`` represents |           |                                                                         |
+|                                       |          | the sender address with which to replace  |           |                                                                         |
+|                                       |          | the original one.                         |           |                                                                         |
+|                                       |          | For more information, see `Postfix's      |           |                                                                         |
+|                                       |          | postconf.5 manual page`_.                 |           |                                                                         |
+|                                       |          | The ``comment`` represent an optional     |           |                                                                         |
+|                                       |          | text to put as a comment in the           |           |                                                                         |
+|                                       |          | ``/etc/postfix/sender_canonical`` file.   |           |                                                                         |
++---------------------------------------+----------+-------------------------------------------+-----------+-------------------------------------------------------------------------+
 
+.. _Postfix's postconf.5 manual page:
+  http://www.postfix.org/postconf.5.html#sender_canonical_maps
 
 Dependencies
 ------------

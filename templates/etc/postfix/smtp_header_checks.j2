@@ -1,0 +1,3 @@
+# {{ ansible_managed }}
+# Change the From header to the default from email address
+/^From:.*/ REPLACE From: {{ postfix_aws_default_from_email }}
